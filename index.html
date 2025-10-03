@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>三位數密碼鎖 UI</title>
+  <style>
+    :root{
+      --bg:#0f172a; --fg:#e2e8f0; --muted:#94a3b8; --accent:#22c55e;
+      --card:#111827; --glass:rgba(255,255,255,.06); --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{
+      display:grid; place-items:center; gap:24px; padding:24px;
+      background:radial-gradient(60% 60% at 50% 40%, #111827, #0b1222 60%, #060a16);
+      color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","Helvetica Neue",Arial,sans-serif;
+    }
+    .lock{
+      display:flex; align-items:center; gap:16px; padding:20px 24px;
+      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08); border-radius:var(--radius);
+      box-shadow:0 20px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .title{font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-size:12px; text-align:center;}
+
+    .dial{
+      --w:92px; --h:126px;
+      width:var(--w); height:var(--h); border-radius:14px; position:relative; overflow:hidden;
+      background:linear-gradient(180deg,#0b1324,#0a1529 45%,#0b1324);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:inset 0 -20px 40px rgba(0,0,0,.5), inset 0 12px 24px rgba(255,255,255,.04);
+      display:grid; grid-template-rows:auto 1fr auto;
+    }
+    .dial .btn{
+      appearance:none; border:none; background:transparent; color:var(--fg);
+      width:100%; height:40px; cursor:pointer; font-size:18px; font-weight:700;
+      transition:transform .06s ease, background .2s ease;
+    }
+    .dial .btn:active{ transform:translateY(1px); }
+    .dial .btn:hover{ background:rgba(255,255,255,.05); }
+
+    .window{
+      position:relative; display:grid; place-items:center; user-select:none; isolation:isolate;
+      border-block:1px solid rgba(255,255,255,.08);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.04), inset 0 8px 30px rgba(0,0,0,.6);
+    }
+    .number{
+      font-variant-numeric:tabular-nums; font-size:48px; line-height:1; font-weight:800;
+      filter:drop-shadow(0 2px 6px rgba(0,0,0,.6));
+    }
+    .dial[data-active="true"] .number{ text-shadow:0 0 22px rgba(34,197,94,.45); }
+
+    .hint{ text-align:center; color:var(--muted); font-size:14px; }
+
+    .btn-primary{
+      appearance:none; border:none; padding:14px 20px; font-weight:800; font-size:16px;
+      border-radius:14px; cursor:pointer; letter-spacing:.02em;
+      background:linear-gradient(180deg, #29e07a, #16a34a);
+      color:#06210f; box-shadow:0 16px 40px rgba(34,197,94,.3), inset 0 1px 0 rgba(255,255,255,.6);
+      transition:transform .08s ease, box-shadow .2s ease, opacity .2s ease;
+      text-decoration:none;
+      display:inline-block;
+    }
+    .btn-primary:hover{ box-shadow:0 24px 60px rgba(34,197,94,.35); transform:translateY(-1px); }
+    .btn-primary:active{ transform:translateY(0); }
+
+    .secret-wrap{ display:grid; place-items:center; gap:12px; }
+    .secret{ display:none; }
+    .secret.show{ display:block; animation:fadeIn .24s ease; }
+
+    @keyframes fadeIn{ from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)} }
+
+    .dial:focus-within{ outline:2px solid rgba(34,197,94,.4); outline-offset:6px; }
+    .btn:focus, .btn-primary:focus{ outline:2px solid rgba(34,197,94,.7); outline-offset:3px; }
+
+    @media (max-width:480px){
+      .dial{ --w:84px; --h:112px }
+      .number{ font-size:42px }
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <div class="title">PASSCODE LOCK</div>
+    <div class="lock" role="group" aria-label="三位數密碼鎖">
+      <div class="dial" data-index="0" aria-label="第一位">
+        <button class="btn up" aria-label="增加第一位">▲</button>
+        <div class="window">
+          <div class="number" tabindex="0" role="spinbutton" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0" aria-label="第一位顯示數字">0</div>
+        </div>
+        <button class="btn down" aria-label="減少第一位">▼</button>
+      </div>
+      <div class="dial" data-index="1" aria-label="第二位">
+        <button class="btn up" aria-label="增加第二位">▲</button>
+        <div class="window">
+          <div class="number" tabindex="0" role="spinbutton" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0" aria-label="第二位顯示數字">0</div>
+        </div>
+        <button class="btn down" aria-label="減少第二位">▼</button>
+      </div>
+      <div class="dial" data-index="2" aria-label="第三位">
+        <button class="btn up" aria-label="增加第三位">▲</button>
+        <div class="window">
+          <div class="number" tabindex="0" role="spinbutton" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0" aria-label="第三位顯示數字">0</div>
+        </div>
+        <button class="btn down" aria-label="減少第三位">▼</button>
+      </div>
+    </div>
+
+    <p class="hint">操作方式：點擊 ▲▼、在數字上使用滑鼠滾輪，或用 ↑ / ↓ 鍵。<br>當組合轉到 <strong>731</strong> 時會出現按鈕。</p>
+
+    <div class="secret-wrap">
+      <a id="secretBtn" class="btn-primary secret" href="https://ths.li/aIkGIAR" target="_blank">🎉 解鎖成功</a>
+    </div>
+  </div>
+
+  <script>
+    const TARGET = [7,3,1];
+    const values = [0,0,0];
+
+    const dials = [...document.querySelectorAll('.dial')];
+    const secretBtn = document.getElementById('secretBtn');
+
+    function render(index){
+      const dial = dials[index];
+      const el = dial.querySelector('.number');
+      const v = ((values[index]%10)+10)%10;
+      values[index] = v;
+      el.textContent = String(v);
+      el.setAttribute('aria-valuenow', String(v));
+      dial.dataset.active = 'true';
+      setTimeout(()=>{ dial.dataset.active = 'false'; }, 120);
+      const matched = values[0]===TARGET[0] && values[1]===TARGET[1] && values[2]===TARGET[2];
+      secretBtn.classList.toggle('show', matched);
+    }
+
+    function inc(i){ values[i] = (values[i] + 1) % 10; render(i); }
+    function dec(i){ values[i] = (values[i] + 9) % 10; render(i); }
+
+    dials.forEach((dial, i)=>{
+      const up = dial.querySelector('.up');
+      const down = dial.querySelector('.down');
+      const num = dial.querySelector('.number');
+
+      up.addEventListener('click', ()=>inc(i));
+      down.addEventListener('click', ()=>dec(i));
+
+      num.addEventListener('wheel', (e)=>{
+        e.preventDefault();
+        if(e.deltaY > 0) inc(i); else dec(i);
+      }, {passive:false});
+
+      num.addEventListener('keydown', (e)=>{
+        if(e.key === 'ArrowUp'){ inc(i); e.preventDefault(); }
+        else if(e.key === 'ArrowDown'){ dec(i); e.preventDefault(); }
+      });
+
+      let startY = null;
+      num.addEventListener('touchstart', (e)=>{ startY = e.touches[0].clientY; }, {passive:true});
+      num.addEventListener('touchend', (e)=>{ startY = null; }, {passive:true});
+      num.addEventListener('touchmove', (e)=>{
+        if(startY===null) return;
+        const y = e.touches[0].clientY;
+        const dy = y - startY;
+        if(Math.abs(dy) > 18){
+          if(dy > 0) inc(i); else dec(i);
+          startY = y;
+        }
+      }, {passive:true});
+    });
+  </script>
+</body>
+</html>
