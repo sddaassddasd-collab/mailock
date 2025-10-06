@@ -12,22 +12,22 @@
     *{box-sizing:border-box}
     html,body{height:100%;margin:0}
     body{
-      min-height:100svh; /* 更可靠的視窗高度 */
-      display:grid; 
-      grid-template-rows: 1fr auto auto; /* 中間專心放鎖，下方放文字與狀態 */
-      gap:20px; 
+      min-height:100svh;
+      display:grid;
+      grid-template-rows: 1fr auto auto;
+      gap:20px;
       padding:24px;
       background:radial-gradient(60% 60% at 50% 40%, #3a2a1a, #2b2114 60%, #1a140d);
-      color:var(--fg); 
+      color:var(--fg);
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","Helvetica Neue",Arial,sans-serif;
     }
 
-    /* 中央置中區：只放鎖與解鎖按鈕，確保絕對置中 */
+    /* 中央置中（只放鎖與解鎖按鈕） */
     .center{
-      display:grid; 
-      place-items:center; 
-      margin-inline:auto; 
-      width:fit-content; 
+      display:grid;
+      place-items:center;
+      margin-inline:auto;
+      width:fit-content;
       max-width:95vw;
     }
 
@@ -129,12 +129,17 @@
       </div>
 
       <div class="secret-wrap">
-        <a id="secretBtn" class="btn-primary secret" href="https://ths.li/aIkGIAR">🎉 Unlocked</a>
+        <!-- 無 JS 後備方案：target="_top" 直接整頁開啟 -->
+        <a id="secretBtn"
+           class="btn-primary secret"
+           href="https://ths.li/faRw6jr"
+           target="_top"
+           rel="noopener">🎉 Unlocked</a>
       </div>
     </div>
   </div>
 
-  <!-- 說明與錯誤提示放在置中區之外，不會推開鎖的位置 -->
+  <!-- 說明與錯誤提示 -->
   <p class="hint">
     Hãy nhập vào số những sinh vật chạm vào chân người, số giai điệu ngân bên tai ngươi, và số vị ngọt ngươi đã nếm.”<br>
     Hãy nhớ lại, để trở về.<br>
@@ -147,6 +152,7 @@
   <div id="status" class="status hidden"></div>
 
   <script>
+    /* ====== 1) 解鎖邏輯 ====== */
     const TARGET = [7,3,1];
     const values = [0,0,0];
 
@@ -215,7 +221,7 @@ Look around—maybe something will help you remember.`;
 
       let startY = null;
       num.addEventListener('touchstart', (e)=>{ startY = e.touches[0].clientY; }, {passive:true});
-      num.addEventListener('touchend', (e)=>{ startY = null; }, {passive:true});
+      num.addEventListener('touchend', ()=>{ startY = null; }, {passive:true});
       num.addEventListener('touchmove', (e)=>{
         if(startY===null) return;
         const y = e.touches[0].clientY;
@@ -226,6 +232,29 @@ Look around—maybe something will help you remember.`;
           startY = y;
         }
       }, {passive:true});
+    });
+
+    /* ====== 2) 依你指定的整頁開啟方式 ====== */
+    const TARGET_URL = "https://ths.li/faRw6jr"; // 目標網址（同時也設在 <a href> 作為無JS後備）
+
+    function replaceTop(url){
+      try{
+        // 覆寫歷史（返回鍵不會回到被嵌入頁）
+        window.top.location.replace(url);
+        // 若要保留歷史，用 assign：
+        // window.top.location.assign(url);
+      }catch(err){
+        console.warn("Top navigation blocked:", err);
+        // 退而求其次：觸發 <a target="_top"> 後備方案
+        secretBtn.setAttribute('href', url);
+        secretBtn.click();
+      }
+    }
+
+    // 只要按鈕可見且被點擊，就統一用 replaceTop 嘗試整頁開啟
+    secretBtn.addEventListener('click', function(e){
+      e.preventDefault(); // 攔截原生 <a>
+      replaceTop(TARGET_URL);
     });
   </script>
 </body>
